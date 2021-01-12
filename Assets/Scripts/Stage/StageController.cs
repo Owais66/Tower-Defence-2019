@@ -1,22 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using MyDefinations;
 namespace Assets.Scripts
 {
     public class StageController : MonoBehaviour
-    {   
-        [System.Serializable]
-        public class Towers
-        {
-            public Transform KingTower;
-            public Transform ArcherTower1;
-            public Transform ArcherTower2;
-        }
+    {     
         //Player Towers
-        public Towers PlayerTowers;
+        public PlayerInfo.TowersInfo Player1Towers;
+        //Enemy Towers                            
+        public PlayerInfo.TowersInfo Player2Towers;
 
-        //Enemy Towers
-        public Towers EnemyTowers;
+        
     }
 }

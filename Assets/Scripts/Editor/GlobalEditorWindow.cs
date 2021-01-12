@@ -3,6 +3,8 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using MyDefinations;
+using Assets.Scripts;
+using System;
 
 namespace MyEditor
 {
@@ -29,26 +31,20 @@ namespace MyEditor
         UnityEngine.Object _GInfo;
 
         #region foldout bools
+        bool PlayerInfoFold = false;
+        bool EnemyInfoFold = false;
         bool CharecterFold = false;
         bool StageFold = false;
         #endregion
         public void OnGUI()
         {
-            if (globalInfo == null)
-            {
-                GUILayout.BeginHorizontal("GroupBox");
-                GUILayout.Label("Select a Global Configuration file\nor create a new one.", "CN EntryInfo");
-                GUILayout.EndHorizontal();
-                EditorGUILayout.Space();
-
+            EditorGUILayout.BeginHorizontal();
                 _GInfo = EditorGUILayout.ObjectField(_GInfo, typeof(GlobalInfo), false);
                 if (GUILayout.Button("Open"))
                 {
                     globalInfo = (GlobalInfo)_GInfo;
                 }
-
-                return;
-          }
+            EditorGUILayout.EndHorizontal();
             #region BasicInfo
 
             #endregion
@@ -73,6 +69,25 @@ namespace MyEditor
             }
             #endregion
 
+            #region PlayerInfo EnemyInfo
+            PlayerInfo PlayerBaseEditor(PlayerInfo _playerInfo)
+            {
+                _playerInfo.towersInfo.KingHealth = FloatField("King Health", _playerInfo.towersInfo.KingHealth);
+                _playerInfo.towersInfo.Archer1Health = FloatField("Archer1 Health", _playerInfo.towersInfo.Archer1Health);
+                _playerInfo.towersInfo.Archer2Health = FloatField("Archer2 Health", _playerInfo.towersInfo.Archer2Health);
+
+                return _playerInfo;
+            }
+
+            PlayerInfoFold = EditorGUILayout.Foldout(PlayerInfoFold, "Player Info");
+            if (PlayerInfoFold)
+            {
+                if (globalInfo.Player1 == null) globalInfo.Player1 = new PlayerInfo();
+
+                if (globalInfo.Player1 == null) globalInfo.Player1 = new PlayerInfo();
+                globalInfo.Player1 = PlayerBaseEditor(globalInfo.Player1);
+            }
+            #endregion
 
             #region StageInfo
             StageFold = EditorGUILayout.Foldout(StageFold, "Stage Options");
@@ -82,14 +97,21 @@ namespace MyEditor
                 {
 
                 }
-            } 
+            }
             #endregion
+
+            //Save Button
+            if (GUILayout.Button("Save"))
+            {
+                EditorUtility.SetDirty(this);
+                AssetDatabase.SaveAssets();
+            }
         }
 
 
         #region Quick Gui Methods
         void ListButtons<T>(ref List<T> list, T EmptyObject)
-            where T : Object
+            where T : UnityEngine.Object
         {
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("+"))
@@ -102,6 +124,15 @@ namespace MyEditor
             }
 
             EditorGUILayout.EndHorizontal();
+        }
+
+        public int IntField(string name, int val)
+        {
+            return EditorGUILayout.IntField(name, val);
+        }
+        public float FloatField(string name, float val)
+        {
+            return EditorGUILayout.FloatField(name, val);
         }
         #endregion
     }

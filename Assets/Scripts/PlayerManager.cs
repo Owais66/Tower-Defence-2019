@@ -3,17 +3,19 @@ using UnityEngine;
 
 namespace Assets.Scripts
 {
-    public class PlayerManager : MonoBehaviour
+    public class PlayerManager : PlayerBase
     {
-        //Camera camera;
 
-        //Parent ForPlayer NPC
-        Transform NPCParent;
+        public EnemyManager enemyManager;
         void Start()
         {
-            //Parent ForPlayer NPC
-            NPCParent = GameObject.Instantiate(new GameObject("PlayerNPCs"), transform).transform;
-            
+            base.start();
+            PlayerTowers = stageController.Player1Towers;
+            EnemyTowers = stageController.Player2Towers;
+
+            enemyManager = GameObject.FindObjectOfType<EnemyManager>();
+
+            enemyManager.OnHitEvent += OnHurt;
         }
 
         void Update()
@@ -23,15 +25,18 @@ namespace Assets.Scripts
                 RaycastHit mouse0hit = ControlManager.Instance.mouse0hit;
                 if (mouse0hit.point != Vector3.zero)
                 {
-                    //GameObject SpawnedChar = GameObject.Instantiate(GameManager.Instance.GetCharacterInfoByID(0).Prefab, mouse0hit.point, Quaternion.identity);
-                    //GameObject knightnpc = GameObject.Instantiate(GameManager.Instance.globalInfo.characterInfos[0].Prefab,NPCParent);
-                    NPCBase.InstantiateNPC(GameManager.Instance.globalInfo.characterInfos[0], mouse0hit.point, NPCParent);
+                    NPCController.InstantiateNPC(GameManager.Instance.globalInfo.characterInfos[0], mouse0hit.point, this);
 
                 }
             }
             
         }
 
+        public void OnHurt(PlayerBase enemybase, NPCBase Attacker, NPCBase Victim)
+        {
+            base.OnHurt(Attacker, Victim);
+            
+        }
         
     }
 }

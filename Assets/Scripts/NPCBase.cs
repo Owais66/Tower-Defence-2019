@@ -1,39 +1,75 @@
-﻿using System.Collections;
+﻿using System;
 using UnityEngine;
 using MyDefinations;
 namespace Assets.Scripts
 {
-    public class NPCBase : MonoBehaviour
+    public abstract class NPCBase : MonoBehaviour
     {
-        public enum NPCState {WalkToTower, WalkToTarget, AttackTower, AttackTarget}
+        #region Events
+        public delegate void OnNPCHitHurtHandler(NPCBase Attacker, NPCBase Victim);
+        public event OnNPCHitHurtHandler OnHurtEvent;
+        public event OnNPCHitHurtHandler OnHitEvent;
+        public delegate void OnNPCStateChangeDel(NPCBase nPCController, NPCState nPCState);
+        public event OnNPCStateChangeDel OnNPCStateChangeEvent;
+        #endregion
 
-        public CharInfo charInfo;
-        public Vector3 SpawnVector;
-
-        public AnimationController anim;
-        public SkinnedMeshRenderer meshRenderer;
-        protected void start(CharInfo _charInfo)
+        public enum NPCState { WalkToTower, WalkToTarget, AttackTower, AttackTarget }
+        private NPCState _nPCState;
+        public NPCState nPCState
         {
-            SpawnVector = transform.position;
-            charInfo = _charInfo;
+            set { _nPCState = value; if(OnNPCStateChangeEvent != null) OnNPCStateChangeEvent(this, value); }
+            get { return _nPCState; }
+        }
 
-            anim = GetComponent<AnimationController>();
+        [HideInInspector]public PlayerBase PlayerBase;
+        [HideInInspector]public CharInfo charInfo;
+        [HideInInspector]public Vector3 SpawnVector;
+        
+        [HideInInspector]public SkinnedMeshRenderer meshRenderer;
+        [HideInInspector]public NPCGUIController npcguiController;
+        [HideInInspector]public Animator animator;
+
+        [HideInInspector] public float Health = 100;
+        protected virtual void start()
+        {   
+            SpawnVector = transform.position;
+
             meshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
+            npcguiController = GetComponentInChildren<NPCGUIController>();
+
+            Health = charInfo.HP;
+
+            //Suibscribe To Hit and Hurt Enents
+            PlayerBase.OnHurtEvent += (PlayerBase playerBase,NPCBase Attacker, NPCBase Victim) => onHurtEvent(Attacker, Victim);
         }
 
         //Static Methods
-        public static void InstantiateNPC(CharInfo charInfo, Vector3 spawnPos, Transform npcParent) {
-            if (charInfo != null)
-            {   
-                GameObject spawnedNPC = GameObject.Instantiate(charInfo.Prefab);
-                spawnedNPC.GetComponentInChildren<SkinnedMeshRenderer>().enabled = false;
-                spawnedNPC.transform.position = spawnPos;
+        
 
-                NPCController nPCController = spawnedNPC.AddComponent<NPCController>();
-                nPCController.charInfo = charInfo;
-            }
-            else
-                Debug.LogError("Charecter Info Not Found");
+        #region Events Methods
+        protected void onHurtEvent(NPCBase Attacker, NPCBase Victim)
+        {
+            if(OnHurtEvent != null)
+            OnHurtEvent(Attacker, Victim);
+
+            Debug.Log(gameObject.name);
         }
+        protected void onHitEvent(NPCBase Attacker, NPCBase Victim)
+        {
+            if(OnHitEvent != null)
+            OnHitEvent(Attacker, Victim);
+
+            PlayerBase.OnHit(Attacker, Victim);
+        }
+        #endregion
+
+        #region Virtual Methods
+        protected virtual void OnHitCheck(){
+            
+        }
+        protected virtual void OnHurtCheck(){
+
+        }
+        #endregion
     }
 }

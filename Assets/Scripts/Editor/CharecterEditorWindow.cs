@@ -44,6 +44,14 @@ namespace MyEditor
             {
                 charecterInfo.Name = EditorGUILayout.TextField("Name", charecterInfo.Name);
                 charecterInfo.Prefab = (GameObject) EditorGUILayout.ObjectField("Prefab",charecterInfo.Prefab, typeof(GameObject), false);
+
+                charecterInfo.SpawnTime = FloatField("SpawnTime", charecterInfo.SpawnTime);
+                charecterInfo.speed = FloatField("speed", charecterInfo.speed);
+                charecterInfo.HP = FloatField("HP", charecterInfo.HP);
+                charecterInfo.Cost = FloatField("Cost", charecterInfo.Cost);
+                charecterInfo.Attack = FloatField("Attack", charecterInfo.Attack);
+                
+                
             }
 
             //Charecter Setup
@@ -51,6 +59,11 @@ namespace MyEditor
             GameObject TempCharecter; 
             if (CharSetup)
             {
+                //Combat Values
+                charecterInfo.TargetDetectRange = FloatField("TargetDetectRange", charecterInfo.TargetDetectRange);
+                charecterInfo.TargetEscapeRanege = FloatField("TargetEscapeRanege", charecterInfo.TargetEscapeRanege);
+                charecterInfo.AttackRange = FloatField("AttackRange", charecterInfo.AttackRange);
+
                 EditorGUILayout.BeginHorizontal();
                 if(GUILayout.Button("Open Charecter"))
                 {
@@ -63,6 +76,23 @@ namespace MyEditor
                 }
                 EditorGUILayout.EndHorizontal();
             }
+
+            //Save Button
+
+            if (GUILayout.Button("Save"))
+            {
+                EditorUtility.SetDirty(this);
+                AssetDatabase.SaveAssets();
+            }
+        }
+
+        public int IntField(string name,int val)
+        {
+            return EditorGUILayout.IntField(name,val);
+        }
+        public float FloatField(string name, float val)
+        {
+            return EditorGUILayout.FloatField(name, val);
         }
     }
 }
